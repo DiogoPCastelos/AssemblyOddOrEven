@@ -27,8 +27,10 @@ main:
 
 end:
 	# exit code
-	movq $0, %rdi       # setting the exit code (kinda like return 0 in c++)
 	call exit
+
+   	movq %rbp, %rsp     # copy rbp to rsp
+	popq %rbp           # popping rbp (clearing stack)
 
 read_and_check:
 	# again the stupid prologue
@@ -62,15 +64,10 @@ even:
 	movq $output_even, %rdi # first argument
 	call printf         # calling function 
 	
-	jmp clear_stack     # jumping to clear_stack label
+	jmp end     # jumping to end label
 odd:
 	movq $0, %rax       # no varargs for printf
 	movq $output_odd, %rdi # param 1 output string
 	call printf         # actual function calling
 	
-	jmp clear_stack     # jumping to clear_stack label
-clear_stack:
-	movq %rbp, %rsp     # copy rbp to rsp
-	popq %rbp           # popping rbp (clearing stack)
-	
-	ret                 # returning
+	jmp end     # jumping to end label
