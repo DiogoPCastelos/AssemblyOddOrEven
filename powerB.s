@@ -1,3 +1,6 @@
+.data
+number: .quad 0 #number variable to save input
+
 .text
 
 prompt: .asciz "---=== Welcome to Alex trying to learn assembly! ===---\n"
@@ -27,8 +30,11 @@ main:
 
 end:
 	# exit code
-	movq $0, %rdi       # setting the exit code (kinda like return 0 in c++)
 	call exit
+
+    #epilogue
+   	movq %rbp, %rsp     # copy rbp to rsp
+	popq %rbp           # popping rbp (clearing stack)
 
 read_and_check:
 	# again the stupid prologue
@@ -39,17 +45,13 @@ read_and_check:
 	movq $input_prompt, %rdi # first parameter, the input prompt
 	call printf         # calling the function
 	
-	subq $16, %rsp      # reserve space in the stack for input
-			    # (in assembly memory is manually allocated)
-	movq $0, %rax       # again, scanf will just take one argument
-	movq $input, %rdi   # first parameter, the input
-	leaq -16(%rbp), %rsi# second parameter, the address of the reserved space
-			    # (-16 because I moved it 16 bits up)
-	call scanf          #actual printing
-
-	movq -16(%rbp), %rsi# load the input value into RSI (second param register)
+    #"prints" out input
+    mov $input, %rdi #sets first parameter to input string
+    mov $number, %rsi #sets the address of the variable "number" in register rsi
+    mov $0, %rax #o rax
+    call scanf #call scanf to scan for input
 	
-	movq %rsi, %rax     # copy input to rax
+	movq number, %rax     # copy input to rax
 	movq $2, %rcx       # move value 2 to rcx (so we can divide later)
 	movq $0, %rdx       # clear the contents of rdx
 	divq %rcx           # divide the content of rax by rcx
@@ -62,15 +64,10 @@ even:
 	movq $output_even, %rdi # first argument
 	call printf         # calling function 
 	
-	jmp clear_stack     # jumping to clear_stack label
+	jmp end     # jumping to end label
 odd:
 	movq $0, %rax       # no varargs for printf
 	movq $output_odd, %rdi # param 1 output string
 	call printf         # actual function calling
 	
-	jmp clear_stack     # jumping to clear_stack label
-clear_stack:
-	movq %rbp, %rsp     # copy rbp to rsp
-	popq %rbp           # popping rbp (clearing stack)
-	
-	ret                 # returning
+	jmp end     # jumping to end label
