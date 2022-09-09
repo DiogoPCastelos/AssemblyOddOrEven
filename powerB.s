@@ -17,7 +17,7 @@ main:
 	# preparing to show prompt
 	movq $0, %rax       # copying 0 to rax because printf should not take varargs
 	movq $prompt, %rdi  # set the parameter in rdi (for printf)
-	call printf        # calling function to print welcome prompt
+	call printf         # calling function to print welcome prompt
 
 	call read_and_check
 
@@ -37,15 +37,15 @@ read_and_check:
 	
 	movq $0, %rax       # again, printf will not take any varargs
 	movq $input_prompt, %rdi # first parameter, the input prompt
-	call printf        # calling the function
+	call printf         # calling the function
 	
 	subq $16, %rsp      # reserve space in the stack for input
-			   # (in assembly memory is manually allocated)
+			    # (in assembly memory is manually allocated)
 	movq $0, %rax       # again, scanf will just take one argument
 	movq $input, %rdi   # first parameter, the input
 	leaq -16(%rbp), %rsi# second parameter, the address of the reserved space
-			   # (-16 because I moved it 16 bits up)
-	call scanf
+			    # (-16 because I moved it 16 bits up)
+	call scanf          #actual printing
 
 	movq -16(%rbp), %rsi# load the input value into RSI (second param register)
 	
@@ -53,24 +53,24 @@ read_and_check:
 	movq $2, %rcx       # move value 2 to rcx (so we can divide later)
 	movq $0, %rdx       # clear the contents of rdx
 	divq %rcx           # divide the content of rax by rcx
-			   # (result SHOULD BE? stored in RAX and the % in RDX)
+			    # (result SHOULD BE? stored in RAX and the % in RDX)
 	cmpq $0, %rdx       # compare rdx to 0
-	jne odd            # JUMP NOT EQUAL to odd
+	jne odd             # JUMP NOT EQUAL to odd
 
 even: 
-	movq $0, %rax
-	movq $output_even, %rdi
-	call printf
+	movq $0, %rax       # preparing the print function
+	movq $output_even, %rdi # first argument
+	call printf         # calling function 
 	
-	jmp clear_stack
+	jmp clear_stack     # jumping to clear_stack label
 odd:
 	movq $0, %rax       # no varargs for printf
 	movq $output_odd, %rdi # param 1 output string
-	call printf
+	call printf         # actual function calling
 	
-	jmp clear_stack
+	jmp clear_stack     # jumping to clear_stack label
 clear_stack:
-	movq %rbp, %rsp
-	popq %rbp
+	movq %rbp, %rsp     # copy rbp to rsp
+	popq %rbp           # popping rbp (clearing stack)
 	
-	ret
+	ret                 # returning
